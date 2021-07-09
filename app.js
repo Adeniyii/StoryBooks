@@ -1,22 +1,27 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
-const handlebars = require("express-handlebars");
-const connectDB = require("./config/db");
 const path = require("path");
 const passport = require("passport");
+const mongoose = require("mongoose");
+const connectDB = require("./config/db");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const handlebars = require("express-handlebars");
 
 // Load config
 dotenv.config({ path: "./config/config.env" });
 const PORT = process.env.PORT || 3000;
-const app = express();
+
+// Passport config
+require("./config/passport")(passport);
+
 connectDB();
+
+const app = express();
 
 // Logging
 process.env.NODE_ENV === "development" && app.use(morgan("dev"));
-
-require("./config/passport")(passport);
 
 // View engine (handlebars)
 app.engine(".hbs", handlebars({ defaultLayout: "main", extname: ".hbs" }));
@@ -28,6 +33,10 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      mongooseConnection: mongoose.connection,
+    }),
   })
 );
 

@@ -13,7 +13,6 @@ module.exports = function (passport) {
         profileFields: ["id", "displayName", "photos", "email", "name"],
       },
       async function (accessToken, refreshToken, profile, done) {
-        console.log(profile);
         try {
           let user = await User.findOne({ facebookId: profile.id });
 
