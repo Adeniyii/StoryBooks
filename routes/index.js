@@ -7,7 +7,9 @@ const router = Router();
  * @route GET /
  */
 router.get('/', (req, res) => {
-  res.render('login')
+  res.render('login', {
+    layout: 'login'
+  })
 })
 
 /**
