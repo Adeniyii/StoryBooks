@@ -8,6 +8,13 @@ const connectDB = require("./config/db");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const handlebars = require("express-handlebars");
+const {
+  formatDate,
+  truncate,
+  stripTags,
+  editIcon,
+  select,
+} = require("./helpers/hbs");
 
 // Load config
 dotenv.config({ path: "./config/config.env" });
@@ -20,11 +27,22 @@ connectDB();
 
 const app = express();
 
+// Body parser
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
 // Logging
 process.env.NODE_ENV === "development" && app.use(morgan("dev"));
 
 // View engine (handlebars)
-app.engine(".hbs", handlebars({ defaultLayout: "main", extname: ".hbs" }));
+app.engine(
+  ".hbs",
+  handlebars({
+    defaultLayout: "main",
+    extname: ".hbs",
+    helpers: { formatDate, truncate, stripTags, editIcon, select },
+  })
+);
 app.set("view engine", ".hbs");
 
 // session initialize
@@ -35,7 +53,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
-      mongooseConnection: mongoose.connection,
+      // mongooseConnection: mongoose.connection,
     }),
   })
 );
@@ -49,6 +67,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Routes
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
+app.use("/stories", require("./routes/newStories"));
 
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
