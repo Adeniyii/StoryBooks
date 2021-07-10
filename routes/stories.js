@@ -21,7 +21,7 @@ router.post("/", ensureAuth, async (req, res) => {
     await Story.create(req.body);
     return res.redirect("/dashboard");
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.render("error/500");
   }
 });
@@ -40,7 +40,52 @@ router.get("/", ensureAuth, async (req, res) => {
       story,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.render("error/500");
+  }
+});
+
+/**
+ * @desc Show single story
+ * @route GET /stories/:id
+ */
+router.get("/:id", ensureAuth, async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id).populate("user").lean();
+
+    if (!story) {
+      return res.render("error/404");
+    }
+    return res.render("stories/show", {
+      story,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.render("error/500");
+  }
+});
+
+/**
+ * @desc Show user stories
+ * @route GET /stories/user/:userId
+ */
+router.get("/user/:userId", ensureAuth, async (req, res) => {
+  try {
+    const story = await Story.find({
+      user: req.params.userId,
+      status: "public",
+    })
+      .populate("user")
+      .lean();
+
+    if (!story) {
+      return res.render("error/404");
+    }
+    return res.render("stories/index", {
+      story,
+    });
+  } catch (error) {
+    console.error(error);
     return res.render("error/500");
   }
 });
@@ -62,7 +107,7 @@ router.get("/edit/:id", ensureAuth, async (req, res) => {
       return res.render("stories/edit", { story });
     }
   } catch (error) {
-    console.log(error);
+    console.errror(error);
     return res.render("error/500");
   }
 });
@@ -89,8 +134,23 @@ router.put("/:id", ensureAuth, async (req, res) => {
       return res.redirect("/dashboard");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.render("error/500");
   }
 });
+
+/**
+ * @desc Delete story
+ * @route DELETE /stories/:id
+ */
+router.delete("/:id", ensureAuth, async (req, res) => {
+  try {
+    await Story.remove({ _id: req.params.id });
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error(error);
+    return res.render("error/500");
+  }
+});
+
 module.exports = router;
