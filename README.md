@@ -8,3 +8,9 @@ This app is hosted at [storybooks]("https://storyboooks.herokuapp.com/")
 - Post private and public stories
 - View, edit and delete private and public stories
 - View other users' stories
+
+## 💫 Stack
+- NodeJS
+- Handlebars
+- MongoDB
+- Facebook developers API
